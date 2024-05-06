@@ -6,90 +6,104 @@ const __dirname = dirname(__filename);
 
 //TODO:.Route Handler Function
 //***tour
-const getAllTours = (req, res) => {
-  // res.status(200).json({
-  //   status: 'success',
-  //   result: tours.length,
-  //   requestAt: req.requestTime,
-  //   data: {
-  //     tours: tours,
-  //   },
-  // });
-};
-
-const getATour = (req, res) => {
-  const id = Number(req.params.id);
-
-  // const tour = tours.find((el) => el.id === id);
-
-  /*if (id > tours.length) {
-    res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID',
-    });
-    
-  }
-  */
-
-  // res.status(200).json({
-  //   status: 'success',
-  //   tour,
-  // });
-};
-
-const createATour = async (req, res) => {
-  //old way
-  /*
-  const newTour = new Tour({})
-  newTour.save();
-*/ try {
-    const newTour = await Tour.create(req.body);
+const getAllTours = async (req, res) => {
+  try {
+    // reading all the documents from the database
+    const tours = await Tour.find();
+    // console.log(tours);
     res.status(200).json({
       status: 'success',
+      result: tours.length,
       data: {
-        tour: newTour,
+        tours: tours,
       },
     });
   } catch (error) {
-    res.status(400).json({
+    res.status(404).json({
       status: 'fail',
       message: error,
     });
   }
 };
 
-const updateATour = (req, res) => {
-  /*const id = req.params.id;
-  if (id > tours.length) {
+const getATour = async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  try {
+    // reading one document from database
+    /*
+    //old way
+    Tour.findOne({_id:req.params.id})
+    */
+    const tour = await Tour.findById(id);
+    res.status(200).json({
+      status: 'success',
+      tour: tour,
+    });
+  } catch (error) {
     res.status(404).json({
       status: 'fail',
-      message: 'Invalid ID',
+      message: error,
     });
   }
-  */
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour: '<Updated tour here...>',
-    },
-  });
 };
 
-const deleteATour = (req, res) => {
+const createATour = async (req, res) => {
+  //old way to create document
   /*
-  const id = req.params.id;
-  if (id > tours.length) {
+  const newTour = new Tour({})
+  newTour.save();*/
+
+  try {
+    // creating documents in database
+    const newTour = await Tour.create(req.body);
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: newTour,
+      },
+    });
+  } catch (error) {
     res.status(404).json({
       status: 'fail',
-      message: 'Invalid ID',
+      message: error,
     });
   }
-  */
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
+};
+
+const updateATour = async (req, res) => {
+  try {
+    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour: tour,
+      },
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: 'fail',
+      message: error,
+    });
+  }
+};
+
+const deleteATour = async (req, res) => {
+  try {
+    await Tour.findByIdAndDelete(req.params.id);
+    res.status(204).json({
+      status: 'success',
+      data: null,
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: 'fail',
+      message: error,
+    });
+  }
 };
 
 export { getAllTours, getATour, createATour, updateATour, deleteATour };
